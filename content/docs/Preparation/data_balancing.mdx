@@ -1,0 +1,65 @@
+---
+title: Data Balancing
+description: This endpoint allows users to upload a file and balance the dataset based on a specified target column. Users can choose from various balancing methods, including oversampling, undersampling, hybrid methods, and class weighting.
+---
+
+## Endpoint: `POST /data-balancing`
+
+### Request Parameters
+
+#### File Upload
+- `file` (required): The file to be processed. Supported formats include CSV, Excel, etc.
+
+#### Form Parameters
+- `target_column` (required): The target column to balance the dataset on.
+- `method` (optional, default: `oversampling`): The balancing method to apply. Supported values:
+  - `oversampling`: Increases the number of samples in the minority class.
+  - `undersampling`: Decreases the number of samples in the majority class.
+  - `hybrid`: Combines oversampling and undersampling techniques.
+  - `class_weighting`: Adjusts class weights to handle imbalance.
+- `oversampling_method` (optional, default: `SMOTE`): The oversampling method to use if `method` is `oversampling`. Supported values:
+  - `SMOTE`: Synthetic Minority Over-sampling Technique.
+  - `ADASYN`: Adaptive Synthetic Sampling.
+  - `RandomOverSampler`: Random oversampling.
+- `k_neighbors` (optional, default: `5`): The number of neighbors to use for oversampling methods like SMOTE and ADASYN.
+- `random_state` (optional, default: `42`): Random seed for reproducibility.
+- `undersampling_method` (optional, default: `RandomUnderSampler`): The undersampling method to use if `method` is `undersampling`. Supported values:
+  - `RandomUnderSampler`: Random undersampling.
+  - `ClusterCentroids`: Undersampling using cluster centroids.
+  - `TomekLinks`: Removes Tomek links to clean the dataset.
+- `sampling_strategy` (optional, default: `0.8`): The sampling strategy for balancing. Can be a float or a dictionary specifying the desired ratio of classes.
+- `class_weights` (optional, default: `balanced`): The class weighting strategy if `method` is `class_weighting`. Supported values:
+  - `balanced`: Automatically adjusts weights inversely proportional to class frequencies.
+  - `custom_weights`: Allows custom weights (not implemented in this version).
+
+### Processing Logic
+
+1. **Read the uploaded file**: The file is converted into a Pandas DataFrame.
+2. **Validate the target column**: Checks if the specified target column exists in the DataFrame.
+3. **Encode categorical columns**: Converts categorical columns into numerical values using label encoding.
+4. **Apply the selected balancing method**:
+   - **Oversampling**:
+     - `SMOTE`: Generates synthetic samples for the minority class.
+     - `ADASYN`: Generates synthetic samples adaptively.
+     - `RandomOverSampler`: Randomly duplicates samples from the minority class.
+   - **Undersampling**:
+     - `RandomUnderSampler`: Randomly removes samples from the majority class.
+     - `ClusterCentroids`: Reduces the majority class by generating centroids.
+     - `TomekLinks`: Removes Tomek links to clean the dataset.
+   - **Hybrid**: Combines oversampling and undersampling using `SMOTEENN`.
+   - **Class Weighting**: Adjusts class weights to handle imbalance without modifying the dataset.
+5. **Decode categorical columns**: Converts numerical values back to their original categorical values.
+6. **Return the balanced dataset**: The balanced dataset is provided for download with the filename appended with `_{method}_balanced`.
+
+### Example Request
+
+```bash
+curl -X POST "http://localhost:8000/data-balancing" \
+-F "file=@data.csv" \
+-F "target_column=target" \
+-F "method=oversampling" \
+-F "oversampling_method=SMOTE" \
+-F "k_neighbors=5" \
+-F "random_state=42" \
+-F "sampling_strategy=0.8"
+```

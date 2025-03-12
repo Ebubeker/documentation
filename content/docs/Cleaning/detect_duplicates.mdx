@@ -1,0 +1,35 @@
+---
+title: Detect Duplicates
+description: This endpoint allows users to upload a CSV file and detect duplicate rows based on specified criteria. Users can choose how duplicates should be handled.
+---
+
+## Endpoint: `POST /detect-duplicates`
+
+### Request Parameters
+
+#### File Upload
+- `file` (required): CSV file to be processed.
+
+#### Form Parameters
+- `case_sensitive` (optional, default: `false`)
+  - Whether string comparisons should be case-sensitive.
+- `consider_nulls_equal` (optional, default: `false`)
+  - Whether `NULL` values should be considered equal when detecting duplicates.
+- `handling_method` (optional, default: `first`)
+  - Method for handling detected duplicates.
+  - Supported values: `first`, `last`, `min`, `max`, `mean`, `sum`.
+
+### Processing Logic
+1. **Read the uploaded file**: The file is converted into a Pandas DataFrame.
+2. **Normalize case (if applicable)**: Converts string values to lowercase if case sensitivity is disabled.
+3. **Handle null values (if applicable)**: Replaces `NULL` values with a placeholder if `consider_nulls_equal` is enabled.
+4. **Detect duplicates**: Identifies duplicate rows based on all columns or a subset.
+5. **Apply handling method**:
+   - `first`: Keeps the first occurrence of duplicates.
+   - `last`: Keeps the last occurrence of duplicates.
+   - `min`: Keeps the row with the smallest value in the subset.
+   - `max`: Keeps the row with the largest value in the subset.
+   - `mean`: Averages numerical values in duplicates.
+   - `sum`: Sums numerical values in duplicates.
+6. **Return the modified file**: The processed file is provided for download.
+

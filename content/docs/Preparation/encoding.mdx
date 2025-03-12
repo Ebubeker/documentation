@@ -1,0 +1,41 @@
+---
+title: Encoding Categorical Data
+description: This endpoint allows users to upload a file and apply a specified encoding method to categorical columns. Supported encoding methods include one-hot encoding, label encoding, target encoding, ordinal encoding, and frequency encoding.
+---
+
+## Endpoint: `POST /encoding`
+
+### Request Parameters
+
+#### File Upload
+- `file` (required): The file to be processed. Supported formats include CSV, Excel, etc.
+
+#### Form Parameters
+- `method` (required): The encoding method to apply. Supported values:
+  - `onehot`: One-hot encoding.
+  - `label`: Label encoding.
+  - `target`: Target encoding (requires a target column).
+  - `ordinal`: Ordinal encoding.
+  - `frequency`: Frequency encoding.
+- `target_column` (optional): The target column required for target encoding. This parameter is mandatory if `method` is `target`.
+
+### Processing Logic
+
+1. **Read the uploaded file**: The file is converted into a Pandas DataFrame.
+2. **Identify categorical columns**: Selects columns with the `object` data type (categorical columns).
+3. **Validate the encoding method**: Ensures the specified method is supported.
+4. **Apply the encoding**:
+   - **One-Hot Encoding**: Converts categorical columns into binary columns (one-hot encoding).
+   - **Label Encoding**: Converts categorical values into integer labels.
+   - **Target Encoding**: Replaces categorical values with the mean of the target column for each category.
+   - **Ordinal Encoding**: Converts categorical values into ordinal integers.
+   - **Frequency Encoding**: Replaces categorical values with their frequency in the dataset.
+5. **Return the modified file**: The encoded file is provided for download with the filename appended with `_encoded_file`.
+
+### Example Request
+
+```bash
+curl -X POST "http://localhost:8000/encoding" \
+-F "file=@data.csv" \
+-F "method=onehot"
+```

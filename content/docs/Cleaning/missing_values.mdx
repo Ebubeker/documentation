@@ -1,0 +1,47 @@
+---
+title: Missing Values
+description: This endpoint processes an uploaded file and handles missing values in specified columns based on defined imputation strategies.
+---
+
+## Endpoint: `POST /missingValues`
+
+### Request Parameters
+
+#### File Upload
+- `file` (required): CSV file to be processed.
+- `columns` (required)
+  - A comma-separated list of column names to process.
+
+#### Form Parameters
+- `numeric_method` (optional, default: `mean`)
+  - Strategy for imputing missing numeric values.
+  - Supported values: `mean`, `median`, `mode`, `constant`, `strong_imputation`, `weak_imputation`, `multiple_imputation`.
+- `categorical_method` (optional, default: `constant`)
+  - Strategy for imputing missing categorical values.
+  - Supported values: `mode`, `constant`.
+- `categorical_value` (optional, default: `unknown`)
+  - Value used for `constant` method in categorical columns.
+- `datetime_method` (optional, default: `forward_fill`)
+  - Strategy for imputing missing datetime values.
+  - Supported values: `forward_fill`, `backward_fill`, `constant`.
+- `threshold` (optional, default: `1.0`)
+  - Percentage threshold for dropping columns with missing values (range: `0.0 - 1.0`).
+
+### Imputation Strategies
+#### Numeric Data
+- **Mean (`mean`)**: Fills missing values with the column mean.
+- **Median (`median`)**: Fills missing values with the column median.
+- **Mode (`mode`)**: Fills missing values with the most frequent value.
+- **Constant (`constant`)**: Fills missing values with a user-defined value.
+- **Strong Imputation (`strong_imputation`)**: Uses linear regression to estimate missing values.
+- **Weak Imputation (`weak_imputation`)**: Uses forward fill method.
+- **Multiple Imputation (`multiple_imputation`)**: Uses multiple imputations via MICE.
+
+#### Categorical Data
+- **Mode (`mode`)**: Fills missing values with the most frequent value.
+- **Constant (`constant`)**: Fills missing values with a user-defined value.
+
+#### Datetime Data
+- **Forward Fill (`forward_fill`)**: Fills missing values with the previous available value.
+- **Backward Fill (`backward_fill`)**: Fills missing values with the next available value.
+- **Constant (`constant`)**: Fills missing values with a user-defined value.

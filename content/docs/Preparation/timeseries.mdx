@@ -1,0 +1,71 @@
+---
+title: Time Series Processing
+description: This endpoint allows users to upload a file and perform time series processing on the data. Users can specify datetime handling, resampling, feature extraction, lag creation, rolling windows, and forecasting.
+---
+
+## Endpoint: `POST /timeseries`
+
+### Request Parameters
+
+#### File Upload
+- `file` (required): The file to be processed. Supported formats include CSV, Excel, etc.
+
+#### Form Parameters
+- `datetime_column` (optional): The column containing datetime values. If not provided, the API will attempt to auto-detect datetime columns.
+- `value_columns` (optional): A list of columns containing numeric values to be processed.
+- `resample_frequency` (optional): The frequency for resampling (e.g., `D` for daily, `H` for hourly). If provided, resampling is applied.
+- `resample_method` (optional, default: `mean`): The method for resampling. Supported values:
+  - `mean`: Resample using the mean.
+  - `sum`: Resample using the sum.
+  - `ffill`: Forward fill missing values.
+  - `none`: No resampling.
+- `timezone_handling` (optional, default: `keep`): How to handle timezones. Supported values:
+  - `keep`: Keep the original timezone.
+  - `convert_to_utc`: Convert datetime values to UTC.
+  - `strip`: Remove timezone information.
+- `time_features` (optional): A comma-separated list of time-based features to extract. Supported values:
+  - `hour`: Extract the hour.
+  - `day_of_week`: Extract the day of the week.
+  - `month`: Extract the month.
+  - `quarter`: Extract the quarter.
+  - `day_of_year`: Extract the day of the year.
+- `lag_periods` (optional, default: `1,7,30`): A comma-separated list of lag periods to create.
+- `rolling_windows` (optional, default: `3,7`): A comma-separated list of rolling window sizes.
+- `rolling_aggregations` (optional, default: `mean,std`): A comma-separated list of aggregation methods for rolling windows. Supported values:
+  - `mean`: Rolling mean.
+  - `std`: Rolling standard deviation.
+  - `sum`: Rolling sum.
+  - `max`: Rolling maximum.
+  - `min`: Rolling minimum.
+- `window_size` (optional, default: `30`): The size of the rolling window.
+- `forecast_horizon` (optional, default: `1`): The forecast horizon for creating future values.
+
+### Processing Logic
+
+1. **Read the uploaded file**: The file is converted into a Pandas DataFrame.
+2. **Auto-detect datetime columns**: If `datetime_column` is not provided, the API attempts to detect datetime columns.
+3. **Handle timezones**: Applies the specified timezone handling (`keep`, `convert_to_utc`, or `strip`).
+4. **Resample data**: If `resample_frequency` is provided, the data is resampled using the specified method (`mean`, `sum`, `ffill`, or `none`).
+5. **Extract time features**: If `time_features` is provided, extracts the specified time-based features.
+6. **Create lag features**: Creates lag features for the specified `lag_periods`.
+7. **Apply rolling windows**: Applies rolling windows with the specified sizes and aggregation methods.
+8. **Create forecast horizon**: Adds a forecast column shifted by the specified `forecast_horizon`.
+9. **Return the modified file**: The processed file is provided for download.
+
+### Example Request
+
+```bash
+curl -X POST "http://localhost:8000/timeseries" \
+-F "file=@data.csv" \
+-F "datetime_column=date" \
+-F "value_columns=value" \
+-F "resample_frequency=D" \
+-F "resample_method=mean" \
+-F "timezone_handling=convert_to_utc" \
+-F "time_features=hour,day_of_week" \
+-F "lag_periods=1,7,30" \
+-F "rolling_windows=3,7" \
+-F "rolling_aggregations=mean,std" \
+-F "window_size=30" \
+-F "forecast_horizon=1"
+```

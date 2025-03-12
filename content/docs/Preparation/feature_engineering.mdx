@@ -1,0 +1,58 @@
+---
+title: Feature Engineering
+description: This endpoint allows users to upload a file and apply various feature engineering transformations to the data. Users can specify transformations for numeric, datetime, categorical, and text columns.
+---
+
+## Endpoint: `POST /feature-engineering`
+
+### Request Parameters
+
+#### File Upload
+- `file` (required): The file to be processed. Supported formats include CSV, Excel, etc.
+
+#### Form Parameters
+- `numeric_transforms` (optional): A list of transformations to apply to numeric columns.
+  - Supported values: `scale`, `bin`, `poly`.
+- `datetime_transforms` (optional): A list of transformations to apply to datetime columns.
+  - Supported values: `year`, `month`, `day`, `hour`.
+- `categorical_transforms` (optional): A list of transformations to apply to categorical columns.
+  - Supported values: `onehot`, `freq`.
+- `text_transforms` (optional): A list of transformations to apply to text columns.
+  - Supported values: `tfidf`, `count`.
+- `custom_transforms` (optional): A list of custom transformations to apply. Each transformation is a dictionary with the following keys:
+  - `method`: The transformation method (e.g., `log`, `interaction`, `sqrt`, etc.).
+  - `columns`: The columns to apply the transformation to.
+  - `params`: Additional parameters for the transformation.
+
+### Processing Logic
+
+1. **Read the uploaded file**: The file is converted into a Pandas DataFrame.
+2. **Infer column types**: The types of columns (numeric, datetime, categorical, text) are inferred automatically.
+3. **Apply numeric transformations** (if specified):
+   - `scale`: Standard scaling is applied to numeric columns.
+   - `bin`: Numeric columns are binned into quantiles.
+   - `poly`: Polynomial features are generated for numeric columns.
+4. **Apply datetime transformations** (if specified):
+   - `year`: Extracts the year from datetime columns.
+   - `month`: Extracts the month from datetime columns.
+   - `day`: Extracts the day from datetime columns.
+   - `hour`: Extracts the hour from datetime columns.
+5. **Apply categorical transformations** (if specified):
+   - `onehot`: One-hot encoding is applied to categorical columns.
+   - `freq`: Frequency encoding is applied to categorical columns.
+6. **Apply text transformations** (if specified):
+   - `tfidf`: TF-IDF vectorization is applied to text columns.
+   - `count`: Count vectorization is applied to text columns.
+7. **Apply custom transformations** (if specified): Custom transformations are applied based on the provided configuration.
+8. **Return the modified file**: The transformed file is provided for download with the filename appended with `_feature_engineering`.
+
+### Example Request
+
+```bash
+curl -X POST "http://localhost:8000/feature-engineering" \
+-F "file=@data.csv" \
+-F "numeric_transforms=scale" \
+-F "datetime_transforms=year" \
+-F "categorical_transforms=onehot" \
+-F "text_transforms=tfidf"
+```

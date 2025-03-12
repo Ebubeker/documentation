@@ -1,0 +1,36 @@
+---
+title: Text Formatting
+description: This endpoint allows users to upload a CSV file and apply text formatting operations to specified columns.
+---
+
+## Endpoint: `POST /text-formatting`
+
+### Request Parameters
+
+#### File Upload
+- `file` (required): CSV file to be processed.
+
+#### Form Parameters
+- `column_names` (required): A comma-separated list of column names to format.
+- `case` (optional, default: `false`)
+  - Whether to apply case transformation.
+- `case_method` (optional, default: `"upper"`)
+  - The method to apply for case transformation (`"upper"`, `"lower"`, `"title"`, `"sentence"`, `"camel"`, `"snake"`, `"kebab"`).
+- `whitespace` (optional, default: `false`)
+  - Whether to modify whitespace handling.
+- `whitespace_method` (optional, default: `"normalize"`)
+  - The method to apply for whitespace transformation (`"normalize"`, `"remove"`, `"single_space"`).
+- `trim` (optional, default: `false`)
+  - Whether to trim text to a specified size.
+- `trim_side` (optional, default: `"right"`)
+  - The side from which to trim text (`"left"`, `"right"`, `"both"`).
+- `trim_size` (optional, default: `30`)
+  - The maximum length of the trimmed text.
+
+### Processing Logic
+1. **Read the uploaded file**: The file is converted into a Pandas DataFrame.
+2. **Validate columns**: Ensures the specified columns exist in the file.
+3. **Apply text transformations**: Formatting operations are applied based on the provided parameters.
+4. **Return the modified file**: The processed file is provided for download.
+
+

@@ -1,0 +1,38 @@
+---
+title: Standardize Columns
+description: This endpoint processes an uploaded CSV file and standardizes column names based on a specified naming convention.
+---
+
+## Endpoint: `POST /standardizeColumns`
+
+### Request Parameters
+
+#### File Upload
+- `file` (required): CSV file to be processed.
+
+#### Form Parameters
+- `default_naming_convention` (optional): Specifies the naming convention for column names.
+  - If not provided, the system will infer the current naming convention and apply it.
+  - Supported values:
+    - `camel case` (e.g., `columnName`)
+    - `kebab case` (e.g., `column-name`)
+    - `pascal case` (e.g., `ColumnName`)
+    - `space case` (e.g., `Column Name`)
+
+### Naming Conventions
+#### Camel Case (`camel case`)
+- Transforms column names into camel case format.
+- Example: `column name` → `columnName`
+
+#### Kebab Case (`kebab case`)
+- Transforms column names into kebab case format.
+- Example: `column name` → `column-name`
+
+#### Pascal Case (`pascal case`)
+- Transforms column names into pascal case format.
+- Example: `column name` → `ColumnName`
+
+#### Space Case (`space case`)
+- Transforms column names into space-separated format with title case.
+- Example: `column_name` → `Column Name`
+

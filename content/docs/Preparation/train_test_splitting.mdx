@@ -1,0 +1,51 @@
+---
+title: Train-Test Splitting
+description: This endpoint processes an uploaded dataset and splits it into training and testing sets based on the specified splitting method.
+---
+
+## Endpoint: `POST /prepTrainTest`
+
+### Request Parameters
+
+#### File Upload
+- `file` (required): CSV file containing the dataset to be split.
+
+#### Form Parameters
+- `splitting_method` (optional, default: `stratified`)
+  - Method for splitting the dataset.
+  - Supported values: `stratified`, `time-based`, `group-based`, `shuffle`.
+- `target_column` (optional, default: `""`)
+  - The name of the target column used for stratification, grouping, or time-based splitting.
+- `group_column` (optional, default: `""`)
+  - The column to be used for `group-based` splitting.
+
+### Splitting Methods
+
+- **Stratified (`stratified`)**:
+  - Ensures that the training and testing sets maintain the same proportion of target classes.
+  - Requires `target_column` to be specified.
+
+- **Time-Based (`time-based`)**:
+  - Splits data chronologically based on the `target_column`.
+  - Uses the 80th percentile as the threshold for splitting.
+  - Requires `target_column` to contain valid datetime values.
+
+- **Group-Based (`group-based`)**:
+  - Splits data while maintaining group integrity, ensuring all data points in a group remain in the same split.
+  - Requires both `target_column` and `group_column` to be specified.
+
+- **Shuffle (`shuffle`)**:
+  - Randomly splits the dataset into training and testing sets.
+  - Requires `target_column` to be specified.
+
+### Response
+- Returns downloadable files containing the split datasets.
+- Depending on the splitting method, the returned files will include:
+  - `X_train.csv`, `X_test.csv`, `y_train.csv`, `y_test.csv` (for `stratified`, `group-based`, and `shuffle` methods).
+  - `train.csv`, `test.csv` (for `time-based` method).
+
+### Errors
+- If `target_column` is not found in the dataset.
+- If `group_column` is specified but does not exist in the dataset (for `group-based` splitting).
+- If `time-based` splitting is used but `target_column` is not a valid datetime column.
+

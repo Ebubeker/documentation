@@ -1,0 +1,23 @@
+---
+title: Merge Columns
+description: This endpoint allows users to upload a CSV file and merge specified columns into a single column using a given delimiter.
+---
+
+## Endpoint: `POST /merge-columns`
+
+### Request Parameters
+
+#### File Upload
+- `file` (required): CSV file to be processed.
+
+#### Form Parameters
+- `columns_to_merge` (required): A comma-separated list of column names to merge.
+- `delimiter` (optional, default: `", "`)
+  - The delimiter used to join the merged column values.
+
+### Processing Logic
+1. **Read the uploaded file**: The file is converted into a Pandas DataFrame.
+2. **Validate columns**: Ensures the specified columns exist in the file.
+3. **Merge columns**: The given columns are concatenated into a new column using the specified delimiter.
+4. **Remove original columns**: The merged columns are dropped from the DataFrame.
+5. **Return the modified file**: The processed file is provided for download.

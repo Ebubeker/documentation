@@ -1,0 +1,40 @@
+---
+title: Data Transformation
+description: This endpoint allows users to upload a file and apply a specified data transformation method to numeric columns. Supported transformation methods include standardization, min-max scaling, log transformation, and power transformation.
+---
+
+## Endpoint: `POST /transform-data`
+
+### Request Parameters
+
+#### File Upload
+- `file` (required): The file to be processed. Supported formats include CSV, Excel, etc.
+
+#### Form Parameters
+- `method` (required): The transformation method to apply. Supported values:
+  - `standardization`: Standardizes numeric columns (mean = 0, standard deviation = 1).
+  - `minmax`: Scales numeric columns to a specified range (default: [0, 1]).
+  - `log`: Applies a log transformation to numeric columns.
+  - `power`: Applies a power transformation (Yeo-Johnson) to numeric columns.
+
+### Processing Logic
+
+1. **Read the uploaded file**: The file is converted into a Pandas DataFrame.
+2. **Validate the transformation method**: Ensures the specified method is supported.
+3. **Identify numeric columns**: Selects only numeric columns for transformation.
+4. **Handle missing values**: Fills missing values in numeric columns with the mean.
+5. **Apply the transformation**:
+   - **Standardization**: Uses `StandardScaler` to standardize numeric columns.
+   - **Min-Max Scaling**: Uses `MinMaxScaler` to scale numeric columns to the range [0, 1].
+   - **Log Transformation**: Applies a log transformation (`log1p`) to numeric columns. If any values are ≤ 0, a shift is applied to ensure positivity.
+   - **Power Transformation**: Applies a Yeo-Johnson power transformation using `PowerTransformer`. If any values are ≤ 0, a shift is applied to ensure positivity.
+6. **Combine transformed and non-numeric columns**: Merges the transformed numeric columns with non-numeric columns.
+7. **Return the modified file**: The transformed file is provided for download with the filename appended with `_transformed_{method}`.
+
+### Example Request
+
+```bash
+curl -X POST "http://localhost:8000/transform-data" \
+-F "file=@data.csv" \
+-F "method=standardization"
+```

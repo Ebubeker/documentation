@@ -1,0 +1,54 @@
+---
+title: Outliers Detection
+description: This endpoint detects and handles outliers in a dataset based on specified detection and handling methods.
+---
+
+## Endpoint: `POST /detectOutliers`
+
+### Request Parameters
+
+#### File Upload
+- `file` (required): CSV file to be processed.
+- `columns` (required): A comma-separated list of column names to process.
+
+#### Form Parameters
+- `detection_method` (optional, default: `zscore`)
+  - Method for detecting outliers.
+  - Supported values: `zscore`, `iqr`, `isolation_forest`, `dbscan`, `local_outlier_factor`.
+- `detection_threshold` (optional, default: `3`)
+  - Threshold for `zscore` method.
+- `detection_multiplier` (optional, default: `1.5`)
+  - Multiplier for `iqr` method.
+- `detection_contamination` (optional, default: `0.1`)
+  - Contamination parameter for `isolation_forest` and `local_outlier_factor`.
+- `detection_random_state` (optional, default: `42`)
+  - Random state for `isolation_forest`.
+- `detection_eps` (optional, default: `0.5`)
+  - Epsilon for `dbscan` method.
+- `detection_min_samples` (optional, default: `5`)
+  - Minimum samples for `dbscan` method.
+- `detection_n_neighbors` (optional, default: `20`)
+  - Number of neighbors for `local_outlier_factor`.
+- `handling_method` (optional, default: `remove`)
+  - Strategy for handling detected outliers.
+  - Supported values: `remove`, `cap`, `impute`, `flag`.
+- `handling_lower_bound` (optional, default: `1`)
+  - Lower percentile for `cap` method.
+- `handling_upper_bound` (optional, default: `99`)
+  - Upper percentile for `cap` method.
+- `impute_method` (optional, default: `mean`)
+  - Imputation method if `impute` is selected.
+  - Supported values: `mean`, `median`, `mode`.
+
+### Outlier Detection Methods
+- **Z-Score (`zscore`)**: Identifies outliers with a threshold (default: `3`).
+- **Interquartile Range (`iqr`)**: Detects values outside `1.5 * IQR`.
+- **Isolation Forest (`isolation_forest`)**: Detects anomalies using a machine learning model.
+- **DBSCAN (`dbscan`)**: Identifies outliers based on density clustering.
+- **Local Outlier Factor (`local_outlier_factor`)**: Detects anomalies based on nearest neighbors.
+
+### Outlier Handling Strategies
+- **Remove (`remove`)**: Deletes detected outliers from the dataset.
+- **Cap (`cap`)**: Limits outliers within specified percentiles.
+- **Impute (`impute`)**: Replaces outliers with statistical values (`mean`, `median`, `mode`).
+- **Flag (`flag`)**: Adds an `outlier_flag` column marking detected outliers.

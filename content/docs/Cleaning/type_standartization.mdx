@@ -1,0 +1,35 @@
+---
+title: Type Standardization
+description: This endpoint allows users to upload a CSV file and apply type standardization operations to specified columns.
+---
+
+## Endpoint: `POST /type-standardization`
+
+### Request Parameters
+
+#### File Upload
+- `file` (required): CSV file to be processed.
+
+#### Form Parameters
+- `column_names` (required): A comma-separated list of column names to standardize.
+- `column_types` (required): A comma-separated list of target data types for the corresponding columns. Supported types:
+  - `boolean`
+  - `integer`
+  - `float`
+  - `string`
+  - `datetime`
+- `datetime_format` (optional, default: `"%Y-%m-%d"`)
+  - The format to use when converting datetime values.
+- `decimal_places` (optional, default: `2`)
+  - The number of decimal places to round float values.
+- `allow_null` (optional, default: `false`)
+  - Whether to allow null values in the dataset. If `false`, rows with null values will be removed.
+
+### Processing Logic
+1. **Read the uploaded file**: The file is converted into a Pandas DataFrame.
+2. **Validate columns**: Ensures that the specified columns exist in the file.
+3. **Validate data types**: Checks that each specified type is supported.
+4. **Apply type conversion**: Converts each column to the specified type while handling errors.
+5. **Handle null values**: Drops rows containing null values if `allow_null` is `false`.
+6. **Return the modified file**: The processed file is provided for download.
+

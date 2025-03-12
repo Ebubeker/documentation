@@ -1,0 +1,57 @@
+---
+title: Window Function
+description: This endpoint allows users to upload a file and apply a window function to a specified column. Users can define partitions, ordering, and the type of window function to apply.
+---
+
+## Endpoint: `POST /window-function`
+
+### Request Parameters
+
+#### File Upload
+- `file` (required): The file to be processed. Supported formats include CSV, Excel, etc.
+
+#### Form Parameters
+- `partition_by` (optional): A list of columns to partition the data by. If not provided, the entire dataset is treated as a single partition.
+- `order_by` (optional): A list of columns to order the data by within each partition.
+- `function` (required): The window function to apply. Supported values:
+  - `SUM`: Cumulative sum.
+  - `ROW_NUMBER`: Row number within each partition.
+  - `AVG`: Cumulative average.
+  - `MIN`: Cumulative minimum.
+  - `MAX`: Cumulative maximum.
+  - `COUNT`: Cumulative count.
+  - `STDDEV`: Cumulative standard deviation.
+  - `VARIANCE`: Cumulative variance.
+- `input_column` (required): The column to apply the window function to.
+- `output_column` (required): The column to store the results of the window function.
+
+### Processing Logic
+
+1. **Read the uploaded file**: The file is converted into a Pandas DataFrame.
+2. **Validate columns**:
+   - Checks if the `input_column` exists in the DataFrame.
+   - Checks if all columns in `partition_by` and `order_by` exist in the DataFrame.
+3. **Sort the data**: If `partition_by` or `order_by` is provided, the data is sorted accordingly.
+4. **Apply the window function**:
+   - **SUM**: Computes the cumulative sum for the `input_column` within each partition.
+   - **ROW_NUMBER**: Assigns a row number to each row within each partition.
+   - **AVG**: Computes the cumulative average for the `input_column` within each partition.
+   - **MIN**: Computes the cumulative minimum for the `input_column` within each partition.
+   - **MAX**: Computes the cumulative maximum for the `input_column` within each partition.
+   - **COUNT**: Computes the cumulative count for the `input_column` within each partition.
+   - **STDDEV**: Computes the cumulative standard deviation for the `input_column` within each partition.
+   - **VARIANCE**: Computes the cumulative variance for the `input_column` within each partition.
+5. **Store the results**: The results of the window function are stored in the `output_column`.
+6. **Return the modified file**: The modified file is provided for download with the filename appended with `_window_function`.
+
+### Example Request
+
+```bash
+curl -X POST "http://localhost:8000/window-function" \
+-F "file=@data.csv" \
+-F "partition_by=category" \
+-F "order_by=date" \
+-F "function=SUM" \
+-F "input_column=value" \
+-F "output_column=cumulative_sum"
+```

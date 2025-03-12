@@ -1,0 +1,70 @@
+---
+title: Dimensionality Reduction
+description: This endpoint allows users to upload a file and apply dimensionality reduction techniques to the dataset. Supported algorithms include PCA, t-SNE, UMAP, and Autoencoder.
+---
+
+## Endpoint: `POST /dimensionality-reduction`
+
+### Request Parameters
+
+#### File Upload
+- `file` (required): The file to be processed. Supported formats include CSV, Excel, etc.
+
+#### Form Parameters
+- `columns` (optional): A comma-separated list of columns to include in the dimensionality reduction. If not provided, all numeric columns are used.
+- `auto_detect_numeric` (optional, default: `True`): Whether to auto-detect numeric columns if `columns` is not provided.
+- `algorithm` (required): The dimensionality reduction algorithm to apply. Supported values:
+  - `pca`: Principal Component Analysis (PCA).
+  - `tsne`: t-Distributed Stochastic Neighbor Embedding (t-SNE).
+  - `umap`: Uniform Manifold Approximation and Projection (UMAP).
+  - `autoencoder`: Autoencoder-based dimensionality reduction.
+- `n_components` (required): The number of components (dimensions) to reduce the data to.
+- `normalize` (optional, default: `True`): Whether to normalize the data before applying dimensionality reduction.
+- `check_missing_values` (optional, default: `False`): Whether to check for missing values in the dataset.
+- `check_numeric` (optional, default: `False`): Whether to ensure all selected columns are numeric.
+- `random_seed` (optional): Random seed for reproducibility.
+
+#### Algorithm-Specific Parameters
+- **PCA**:
+  - `pca_whiten` (optional, default: `False`): Whether to whiten the data.
+  - `pca_svd_solver` (optional, default: `auto`): The SVD solver to use. Supported values: `auto`, `full`, `arpack`, `randomized`.
+- **t-SNE**:
+  - `tsne_perplexity` (optional, default: `30.0`): The perplexity parameter for t-SNE.
+  - `tsne_learning_rate` (optional, default: `200.0`): The learning rate for t-SNE.
+- **UMAP**:
+  - `umap_neighbors` (optional, default: `15`): The number of neighbors for UMAP.
+  - `umap_min_dist` (optional, default: `0.1`): The minimum distance for UMAP.
+- **Autoencoder**:
+  - `autoencoder_layers` (optional): A comma-separated list of layer sizes for the autoencoder (e.g., `64,32`).
+  - `autoencoder_epochs` (optional, default: `50`): The number of training epochs for the autoencoder.
+  - `autoencoder_learning_rate` (optional, default: `0.001`): The learning rate for the autoencoder.
+
+### Processing Logic
+
+1. **Read the uploaded file**: The file is converted into a Pandas DataFrame.
+2. **Validate inputs**:
+   - Checks if the dataset is empty.
+   - Validates the selected columns (if provided).
+   - Auto-detects numeric columns if `auto_detect_numeric` is `True`.
+   - Checks for missing values if `check_missing_values` is `True`.
+   - Ensures all selected columns are numeric if `check_numeric` is `True`.
+   - Validates the number of components (`n_components`).
+3. **Normalize data**: If `normalize` is `True`, the data is standardized using `StandardScaler`.
+4. **Apply dimensionality reduction**:
+   - **PCA**: Applies Principal Component Analysis.
+   - **t-SNE**: Applies t-Distributed Stochastic Neighbor Embedding.
+   - **UMAP**: Applies Uniform Manifold Approximation and Projection.
+   - **Autoencoder**: Trains an autoencoder and uses the bottleneck layer for dimensionality reduction.
+5. **Return the transformed data**: The reduced dataset is provided for download with the filename appended with `_dimensionality_reduction`.
+
+### Example Request
+
+```bash
+curl -X POST "http://localhost:8000/dimensionality-reduction" \
+-F "file=@data.csv" \
+-F "algorithm=pca" \
+-F "n_components=2" \
+-F "pca_whiten=False" \
+-F "pca_svd_solver=auto" \
+-F "normalize=True"
+```

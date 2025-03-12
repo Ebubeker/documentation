@@ -1,0 +1,46 @@
+---
+title: Data Augmentation
+description: This endpoint allows users to upload a file and apply data augmentation techniques to a specified text column. Users can choose from various augmentation methods and specify the number of augmented rows to generate.
+---
+
+## Endpoint: `POST /data-augmentation`
+
+### Request Parameters
+
+#### File Upload
+- `file` (required): The file to be processed. Supported formats include CSV, Excel, etc.
+
+#### Form Parameters
+- `method` (optional, default: `word_shuffling`): The data augmentation method to apply. Supported values:
+  - `word_shuffling`: Shuffles words in the text.
+  - `sentence_shuffling`: Shuffles sentences in the text.
+  - `word_replacement`: Replaces words using a BERT-based model.
+  - `syntax_tree_manipulation`: Manipulates the syntax tree of the text.
+  - `random_word_insertion`: Inserts random words into the text.
+  - `random_word_deletion`: Deletes random words from the text.
+- `column` (required): The column in the file to apply the augmentation to.
+- `num_augmented` (optional, default: `1`): The number of augmented rows to generate for each original row.
+
+### Processing Logic
+
+1. **Read the uploaded file**: The file is converted into a Pandas DataFrame.
+2. **Validate the column**: Checks if the specified column exists in the DataFrame.
+3. **Apply the selected augmentation method**:
+   - **Word Shuffling**: Shuffles the words in the text.
+   - **Sentence Shuffling**: Shuffles the sentences in the text.
+   - **Word Replacement**: Replaces words using a BERT-based model.
+   - **Syntax Tree Manipulation**: Manipulates the syntax tree of the text.
+   - **Random Word Insertion**: Inserts random words into the text.
+   - **Random Word Deletion**: Deletes random words from the text.
+4. **Generate augmented rows**: For each original row, the specified number of augmented rows is generated.
+5. **Return the modified file**: The augmented file is provided for download with the filename appended with `_augmented`.
+
+### Example Request
+
+```bash
+curl -X POST "http://localhost:8000/data-augmentation" \
+-F "file=@data.csv" \
+-F "method=word_shuffling" \
+-F "column=text" \
+-F "num_augmented=2"
+```
