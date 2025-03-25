@@ -1,0 +1,82 @@
+---
+title: Correlation and Relationship
+description: This endpoint allows users to perform correlation analysis on numerical columns of a dataset, and optionally generate cross-tabulations for categorical columns and graphs such as heatmaps, stacked bar charts, and clustered bar charts.
+---
+
+## Endpoint: `POST /correlation-relationship`
+
+### Request Parameters
+
+#### File Upload
+- `file` (required): The file to be processed. Supported formats include CSV, Excel, etc.
+
+#### Correlation Method
+- `correlation_method` (optional): The method used to compute correlations between numerical columns. Default is `pearson`. Other options include:
+  - `pearson`: Pearson correlation coefficient (default).
+  - `spearman`: Spearman rank-order correlation.
+
+#### Numerical Columns
+- `numerical_columns` (optional): Comma-separated list of numerical columns to include in the correlation analysis. If omitted, all numerical columns are used.
+
+#### Cross-Tabulation Columns
+- `cross_tab_columns` (optional): Comma-separated list of two categorical columns to compute a cross-tabulation. If omitted or if more than two columns are provided, no cross-tabulation is performed.
+
+#### Include Graphs
+- `include_graphs` (optional): Boolean to specify if graphs should be included in the response. Default is `false`.
+
+#### Graph Types
+- `graph_types` (optional): Comma-separated list of graph types to include in the analysis. Default is `[]`. Available options:
+  - `heatmap`: Displays a heatmap of the correlation matrix.
+  - `stacked_bar`: Displays a stacked bar chart for the cross-tabulation data.
+  - `clustered_bar`: Displays a clustered bar chart for the cross-tabulation data.
+
+### Example Request
+
+```bash
+curl -X POST "http://localhost:8000/correlation-relationship" \
+-F "file=@data.csv" \
+-F "correlation_method=spearman" \
+-F "numerical_columns=Age,Income" \
+-F "cross_tab_columns=Gender,Education" \
+-F "include_graphs=true" \
+-F "graph_types=heatmap,stacked_bar"
+```
+
+### Analysis Components
+
+1. **Correlation Analysis**: Computes the correlation matrix for numerical columns using the specified correlation method (`pearson` or `spearman`).
+2. **Cross-Tabulation**: Computes a cross-tabulation (contingency table) for two categorical columns if provided. This is useful for understanding the relationship between categorical variables.
+3. **Graphs**: Optionally generates visualizations based on the correlation matrix and cross-tabulation:
+   - **Heatmap**: Visualizes the correlation matrix as a heatmap.
+   - **Stacked Bar**: Visualizes the cross-tabulation data as a stacked bar chart.
+   - **Clustered Bar**: Visualizes the cross-tabulation data as a clustered bar chart.
+
+### Example Response
+
+```json
+{
+  "correlation_matrix": {
+    "Age": {"Income": 0.45, "Outcome": 0.32},
+    "Income": {"Age": 0.45, "Outcome": 0.60},
+    "Outcome": {"Age": 0.32, "Income": 0.60}
+  },
+  "cross_tabulation": {
+    "Gender": {"Male": {"Bachelor": 50, "Master": 30}, "Female": {"Bachelor": 40, "Master": 20}}
+  },
+  "graphs": {
+    "heatmap": [
+      [1, 0.45, 0.32],
+      [0.45, 1, 0.60],
+      [0.32, 0.60, 1]
+    ],
+    "stacked_bar": {
+      "Male": [50, 30],
+      "Female": [40, 20]
+    },
+    "clustered_bar": {
+      "Male": [50, 30],
+      "Female": [40, 20]
+    }
+  }
+}
+```

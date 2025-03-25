@@ -1,0 +1,143 @@
+---
+title: Distribution Analysis
+description: This endpoint performs a distribution analysis on both numerical and categorical columns in the provided dataset, and optionally generates various graphs like histograms, KDE plots, box plots, and more.
+---
+
+## Endpoint: `POST /distribution-analysis`
+
+### Request Parameters
+
+#### File Upload
+- `file` (required): The file to be processed. Supported formats include CSV, Excel, etc.
+
+#### Numerical Columns
+- `numerical_columns` (optional): Comma-separated list of numerical columns to include in the distribution analysis. If omitted, all numerical columns are used.
+
+#### Histogram Bins
+- `histogram_bins` (optional): The number of bins to use for histograms. Can be specified as an integer or one of the following string values:
+  - `"auto"`: Automatically determines the optimal number of bins (default).
+  - `"fd"`: Freedman-Diaconis rule.
+  - `"doane"`, `"scott"`, `"rice"`, `"sturges"`, `"sqrt"`, `"scott"`: Specific binning strategies.
+
+#### Density
+- `density` (optional): Boolean to specify whether the histogram should be normalized to form a probability density (default is `false`).
+
+#### Categorical Columns
+- `categorical_columns` (optional): Comma-separated list of categorical columns to include in the distribution analysis. If omitted, all categorical columns are used.
+
+#### Top Categories
+- `top_categories` (optional): An integer specifying how many top categories to include in the analysis. Default is `0`, which means all categories are included.
+
+#### Include Graphs
+- `include_graphs` (optional): Boolean to specify if graphs should be included in the response. Default is `false`.
+
+#### Graph Types
+- `graph_types` (optional): Comma-separated list of graph types to generate. Default is `["histogram"]`. Available options:
+  - `histogram`: Displays histograms of the numerical columns.
+  - `kde`: Displays Kernel Density Estimation (KDE) plots.
+  - `boxplot`: Displays boxplots for the numerical columns.
+  - `ecdf`: Displays the Empirical Cumulative Distribution Function (ECDF) for the numerical columns.
+  - `bar`: Displays bar charts for categorical data.
+  - `pie`: Displays pie charts for categorical data (normalized counts).
+  - `treemap`: Displays a treemap for categorical data.
+
+### Example Request
+
+```bash
+curl -X POST "http://localhost:8000/distribution-analysis" \
+-F "file=@data.csv" \
+-F "numerical_columns=Age,Income" \
+-F "histogram_bins=auto" \
+-F "density=true" \
+-F "categorical_columns=Gender,Education" \
+-F "top_categories=5" \
+-F "include_graphs=true" \
+-F "graph_types=histogram,kde,boxplot"
+```
+
+### Analysis Components
+
+1. **Numerical Distribution Analysis**: Computes the following statistical measures for each numerical column:
+   - **Mean**: The average value of the column.
+   - **Standard Deviation**: Measures the spread of the values.
+   - **Min/Max**: The minimum and maximum values of the column.
+   - **Percentiles**: The 25th, 50th (median), and 75th percentiles.
+
+2. **Categorical Distribution Analysis**: Computes the frequency of each category for the specified categorical columns. If `top_categories` is specified, only the top N categories are included.
+
+3. **Graphs**: Optionally generates visualizations based on the distribution analysis:
+   - **Histogram**: Displays histograms for numerical columns.
+   - **KDE**: Displays Kernel Density Estimation plots.
+   - **Boxplot**: Displays boxplots to show the distribution of numerical columns.
+   - **ECDF**: Displays the Empirical Cumulative Distribution Function for numerical data.
+   - **Bar**: Displays bar charts for categorical data.
+   - **Pie**: Displays pie charts showing the proportions of each category in categorical columns.
+   - **Treemap**: Displays a treemap of categorical data for hierarchical visualization.
+
+### Example Response
+
+```json
+{
+  "numerical_distribution": {
+    "Age": {
+      "mean": 35.4,
+      "std": 12.3,
+      "min": 18.0,
+      "max": 78.0,
+      "percentiles": {
+        "0.25": 25.0,
+        "0.5": 35.0,
+        "0.75": 45.0
+      }
+    },
+    "Income": {
+      "mean": 55000,
+      "std": 15000,
+      "min": 20000,
+      "max": 120000,
+      "percentiles": {
+        "0.25": 40000,
+        "0.5": 55000,
+        "0.75": 70000
+      }
+    }
+  },
+  "categorical_distribution": {
+    "Gender": {
+      "Male": 120,
+      "Female": 150
+    },
+    "Education": {
+      "Bachelor": 100,
+      "Master": 80,
+      "PhD": 20
+    }
+  },
+  "graphs": {
+    "histogram": {
+      "Age": [10, 50, 100, 200],
+      "Income": [3000, 5000, 10000]
+    },
+    "kde": {
+      "Age": [0.02, 0.04, 0.06],
+      "Income": [0.05, 0.1, 0.12]
+    },
+    "boxplot": {
+      "Age": {
+        "min": 18,
+        "q1": 25,
+        "median": 35,
+        "q3": 45,
+        "max": 78
+      },
+      "Income": {
+        "min": 20000,
+        "q1": 40000,
+        "median": 55000,
+        "q3": 70000,
+        "max": 120000
+      }
+    }
+  }
+}
+```

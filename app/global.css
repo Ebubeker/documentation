@@ -1,5 +1,22 @@
 @import 'tailwindcss';
-@import 'fumadocs-ui/css/neutral.css';
+/* @import 'fumadocs-ui/css/neutral.css'; */
 @import 'fumadocs-ui/css/preset.css';
+@import 'fumadocs-ui/css/vitepress.css';
 
 @source '../node_modules/fumadocs-ui/dist/**/*.js';
+
+:root {
+  --color-fd-background: hsl(0, 0%, 100%);
+  --fd-background: hsl(0, 0%, 100%);
+}
+ 
+.dark {
+  --color-fd-background: hsl(210, 46%, 29%);
+  --fd-background: hsl(210, 46%, 29%);
+  --color-fd-card: hsl(211, 49%, 23%);
+  --color-fd-accent: hsl(209, 61%, 15%);
+}
+
+.dark #nd-sidebar {
+  background-color: hsl(211, 49%, 23%) !important;
+}

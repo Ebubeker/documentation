@@ -1,0 +1,34 @@
+---
+title: Feature Selection
+description: This endpoint allows users to upload a file and apply a specified feature selection method to reduce the number of features based on variance, correlations, or statistical tests.
+---
+
+## Endpoint: `POST /feature-selection`
+
+### Request Parameters
+
+#### File Upload
+- `file` (required): The file to be processed. Supported formats include CSV.
+
+
+#### Form Parameters
+- `method` (required): The feature selection method to apply. Supported values:
+  - `variance_threshold`: Removes features with variance below a specified threshold.
+  - `pearson_correlation`: Removes features with a Pearson correlation coefficient below a given threshold.
+  - `spearman_correlation`: Removes features with a Spearman correlation coefficient below a given threshold.
+  - `chi2`: Selects features based on the Chi-square statistical test.
+  - `anova`: Selects features using an ANOVA F-test.
+- `target_column` (optional): The target column for correlation or statistical tests (required for Pearson, Spearman, Chi2, and ANOVA).
+- `variance_threshold` (optional): Minimum variance threshold for `variance_threshold` method. Default is `0.0`.
+- `correlation_threshold` (optional): Minimum correlation threshold for Pearson and Spearman methods. Default is `0.9`.
+- `p_value_threshold` (optional): Maximum p-value threshold for Chi2 and ANOVA methods. Default is `0.05`.
+### Example Request
+
+```bash
+curl -X POST "http://localhost:8000/feature-selection" \
+-F "file=@data.csv" \
+-F "method=pearson_correlation" \
+-F "target_column=Outcome" \
+-F "correlation_threshold=0.8"
+```
+

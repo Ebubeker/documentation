@@ -1,0 +1,48 @@
+---
+title: Data Binning
+description: This endpoint allows users to upload a CSV file and apply a specified binning method to a numeric column. Supported methods include equal-width, equal-frequency, and custom binning.
+---
+
+## Endpoint: `POST /binning`
+
+### Request Parameters
+
+#### File Upload
+- `file` (required): The CSV file to be processed.
+
+#### Form Parameters
+- `column` (required): The column to apply binning.
+- `method` (optional, default=`"equal_width"`): Binning method to apply. Supported values:
+  - `"equal_width"`: Divides data into bins of equal width.
+  - `"equal_frequency"`: Divides data into bins with an equal number of data points.
+  - `"custom"`: Uses custom-defined bin edges.
+- `num_bins` (optional, default=`5`): Number of bins for equal-width or equal-frequency methods.
+- `custom_bins` (optional): Comma-separated list of custom bin edges.
+- `labels` (optional): Comma-separated list of bin labels.
+- `include_lowest` (optional, default=`True`): Whether to include the lowest value in the first bin.
+- `right` (optional, default=`True`): Whether the bins are right-inclusive.
+- `handle_outliers` (optional, default=`"other"`): How to handle outliers. Options:
+  - `"other"`: Assigns outliers to separate bins.
+  - `"exclude"`: Excludes outliers from binning.
+- `dtype` (optional, default=`"categorical"`): Output data type of the binned column. Supported values: `"categorical"`, `"integer"`, `"string"`.
+
+### Processing Logic
+1. **File Reading**: The uploaded file is read and converted into a Pandas DataFrame.
+2. **Input Validation**: Ensures the specified column exists and contains numeric data.
+3. **Method Selection**:
+   - **Equal Width**: Creates equal-width bins based on data range.
+   - **Equal Frequency**: Distributes data into bins with equal frequencies.
+   - **Custom Binning**: Applies user-defined bin edges.
+4. **Handle Outliers**: Configures the handling of outliers based on user preference.
+5. **Labeling and Data Type Conversion**: Applies labels and converts the output to the specified data type.
+6. **Return Transformed File**: Provides a downloadable file with the binned column appended.
+
+### Example Request
+
+```bash
+curl -X POST "<endpoint-url>/binning" \
+  -F "file=@data.csv" \
+  -F "column=values" \
+  -F "method=equal_width" \
+  -F "num_bins=4" 
+```

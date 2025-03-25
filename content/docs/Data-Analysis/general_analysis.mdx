@@ -1,0 +1,63 @@
+---
+title: General Analysis
+description: This endpoint allows users to upload a file and receive a comprehensive analysis of the dataset, covering data structure, quality, statistical analysis, correlations, and distributions.
+---
+
+## Endpoint: `POST /general-analysis`
+
+### Request Parameters
+
+#### File Upload
+- `file` (required): The file to be processed. Supported formats include CSV.
+
+### Example Request
+
+```bash
+curl -X POST "http://localhost:8000/general-analysis" \
+-F "file=@data.csv"
+```
+
+### Analysis Components
+
+1. **Data Structure Analysis**: Provides an overview of the dataset, including the number of columns, rows, shape, column names, data types, memory usage, and duplicate records.
+2. **Data Quality Analysis**: Evaluates the dataset for missing values, unique value counts, constant columns, and highly imbalanced columns.
+3. **Statistical Analysis**: Computes key statistics for numerical columns, including mean, median, standard deviation, minimum, and maximum values. Also calculates skewness and kurtosis for assessing distribution.
+4. **Correlation Analysis**: Identifies correlations between numerical features and flags highly correlated features (based on a customizable threshold, default 0.9).
+5. **Distribution Analysis**: Analyzes the distribution of numerical and categorical features, including histograms, categorical frequency distributions, and outlier detection using the IQR method.
+
+### Example Response
+```json
+{
+  "dataset_structure": {
+    "columns": 5,
+    "rows": 100,
+    "shape": [100, 5],
+    "column_names": ["Age", "Income", "Gender", "Education", "Outcome"],
+    "column_datatypes": {"Age": "int64", "Income": "float64", "Gender": "object", "Education": "object", "Outcome": "int64"},
+    "memory_usage": {"Age": 800, "Income": 800, "Gender": 500, "Education": 500, "Outcome": 800},
+    "duplicates": {"duplicates": 2, "dataset_records_total": 100, "percentage": 2.0}
+  },
+  "dataset_quality": {
+    "Missing Percentage": {"Age": 0.0, "Income": 5.0, "Gender": 0.0, "Education": 0.0, "Outcome": 0.0},
+    "Unique Values Count": {"Age": 30, "Income": 50, "Gender": 2, "Education": 3, "Outcome": 2},
+    "Constant Columns": [],
+    "Highly Imbalanced Columns": ["Gender"]
+  },
+  "dataset_statistical_analysis": {
+    "Numerical Statistics": {"Age": {"mean": 35.5, "median": 35, "std": 10.2, "min": 18, "max": 60}},
+    "Skewness": {"Age": 0.5},
+    "Kurtosis": {"Age": 2.1},
+    "Categorical Mode": {"Gender": "Male", "Education": "Bachelor"}
+  },
+  "dataset_correlation_analysis": {
+    "Correlation Matrix": {"Age": {"Income": 0.45, "Outcome": 0.32}},
+    "Highly Correlated Features": []
+  },
+  "dataset_distribution_analysis": {
+    "Histogram Data": {"Age": {"bin_edges": [18, 26, 34, 42, 50, 60], "frequencies": [10, 20, 30, 25, 15]}},
+    "Categorical Frequency Distribution": {"Gender": {"Male": 60, "Female": 40}},
+    "Outlier Detection (IQR)": {"Age": {"lower_bound": 10, "upper_bound": 70, "outliers": []}}
+  }
+}
+```
+

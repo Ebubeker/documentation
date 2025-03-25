@@ -1,0 +1,80 @@
+---
+title: Descriptive Statistics
+description: This endpoint allows users to upload a file and receive descriptive statistics of the dataset, including numerical and categorical statistics, and optionally generate graphs like histograms, boxplots, or bar charts.
+---
+
+## Endpoint: `POST /descriptive-statistics`
+
+### Request Parameters
+
+#### File Upload
+- `file` (required): The file to be processed. Supported formats include CSV, Excel, etc.
+
+#### Columns Selection
+- `columns` (optional): Comma-separated list of columns to include in the analysis. If omitted, all columns are included.
+
+#### Exclude Columns
+- `exclude_columns` (optional): Comma-separated list of columns to exclude from the analysis.
+
+#### Numerical Statistics
+- `num_stats` (optional): Comma-separated list of numerical statistics to compute. Default values are `["mean", "median", "std", "min", "max", "percentiles", "skew", "kurtosis"]`. Available options: `mean`, `median`, `std`, `min`, `max`, `percentiles`, `skew`, `kurtosis`.
+
+#### Categorical Statistics
+- `cat_stats` (optional): Comma-separated list of categorical statistics to compute. Default values are `["count", "unique", "top", "frequency", "mode"]`. Available options: `count`, `unique`, `top`, `frequency`, `mode`.
+
+#### Graphs
+- `include_graphs` (optional): Boolean to specify if graphs should be included in the response. Default is `false`.
+- `graph_types` (optional): Comma-separated list of graph types to include in the analysis. Default is `["Histogram"]`. Available options: `Histogram`, `Boxplot`, `Bar`.
+
+### Example Request
+
+```bash
+curl -X POST "http://localhost:8000/descriptive-statistics" \
+-F "file=@data.csv" \
+-F "columns=Age,Income" \
+-F "exclude_columns=Gender" \
+-F "num_stats=mean,median,skew" \
+-F "cat_stats=count,unique" \
+-F "include_graphs=true" \
+-F "graph_types=Histogram,Boxplot"
+```
+
+### Analysis Components
+
+1. **Numerical Statistics**: Computes statistical values for numerical columns. This includes mean, median, standard deviation, minimum, maximum, percentiles, skewness, and kurtosis.
+2. **Categorical Statistics**: Provides statistics for categorical columns, such as count, unique values, mode, and frequency distribution.
+3. **Graphs**: Generates optional visualizations (e.g., histograms, boxplots, or bar charts) for numerical or categorical data.
+
+### Example Response
+
+```json
+{
+  "numerical_stats": {
+    "mean": {"Age": 35.5, "Income": 55000},
+    "median": {"Age": 35, "Income": 50000},
+    "std": {"Age": 10.2, "Income": 12000},
+    "min": {"Age": 18, "Income": 20000},
+    "max": {"Age": 60, "Income": 100000},
+    "percentiles": {"Age": {"25th": 25, "50th": 35, "75th": 45}},
+    "skew": {"Age": 0.5, "Income": 0.1},
+    "kurtosis": {"Age": 2.1, "Income": 1.8}
+  },
+  "categorical_stats": {
+    "count": {"Gender": 100, "Education": 100},
+    "unique": {"Gender": 2, "Education": 4},
+    "top": {"Gender": "Male", "Education": "Bachelor"},
+    "frequency": {"Gender": {"Male": 60, "Female": 40}},
+    "mode": {"Gender": "Male", "Education": "Bachelor"}
+  },
+  "graphs": {
+    "histogram": {
+      "Age": {"bin_edges": [18, 26, 34, 42, 50, 60], "frequencies": [10, 20, 30, 25, 15]},
+      "Income": {"bin_edges": [20000, 40000, 60000, 80000, 100000], "frequencies": [10, 30, 40, 15, 5]}
+    },
+    "boxplot": {
+      "Age": {"min": 18, "q1": 25, "median": 35, "q3": 45, "max": 60},
+      "Income": {"min": 20000, "q1": 40000, "median": 50000, "q3": 70000, "max": 100000}
+    }
+  }
+}
+```

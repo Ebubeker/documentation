@@ -1,0 +1,65 @@
+---
+title: NLP Analysis
+description: This endpoint provides natural language processing (NLP) analysis on the uploaded text data, covering named entity recognition, text similarity, language detection, text classification, sentiment analysis, keyword extraction, topic modeling, and text summarization.
+---
+
+## Endpoint: `POST /nlp-analysis`
+
+### Request Parameters
+
+#### File Upload
+- `file` (required): The file containing the text data to be analyzed. Supported formats include CSV.
+- `text_column` (required): The name of the column containing the text data.
+- `analysis_type` (optional): The specific type of analysis to perform (`ner`, `similarity`, `language`, `classification`, `sentiment`, `keywords`, `topics`, `summary`). If omitted, all analyses will be performed.
+- `num_keywords` (optional, default=5): The number of keywords to extract during keyword extraction.
+- `num_topics` (optional, default=3): The number of topics for topic modeling.
+- `summary_length` (optional, default=3): The number of sentences in the text summary.
+
+### Example Request
+
+```bash
+curl -X POST "http://localhost:8000/nlp-analysis" \
+-F "file=@data.csv" \
+-F "text_column=review" \
+-F "analysis_type=sentiment"
+```
+
+### Analysis Components
+
+1. **Named Entity Recognition (NER)**: Identifies entities like organizations, people, locations, dates, and products.
+2. **Text Similarity**: Calculates cosine similarity between text samples.
+3. **Language Detection**: Detects the language of the text data.
+4. **Text Classification**: Classifies text as positive, negative, or neutral based on sentiment scores.
+5. **Sentiment Analysis**: Uses VADER to analyze sentiment scores (positive, negative, neutral, compound).
+6. **Keyword Extraction**: Extracts keywords based on term frequency.
+7. **Topic Modeling (LDA)**: Discovers topics and related keywords from the text.
+8. **Text Summarization**: Generates a brief extractive summary of the text data.
+
+### Example Response
+```json
+{
+  "results": {
+    "ner": {
+      "ORG": ["Google"],
+      "PERSON": ["John"],
+      "GPE": ["France"],
+      "DATE": ["2023"],
+      "PRODUCT": ["iPhone"]
+    },
+    "similarity": [[1.0, 0.5], [0.5, 1.0]],
+    "language": ["en", "fr"],
+    "classification": ["positive", "negative"],
+    "sentiment": [
+      {"neg": 0.1, "neu": 0.7, "pos": 0.2, "compound": 0.25},
+      {"neg": 0.4, "neu": 0.5, "pos": 0.1, "compound": -0.4}
+    ],
+    "keywords": ["product", "quality", "service"],
+    "topics": [
+      {"topic": 1, "keywords": ["product", "service", "quality"]},
+      {"topic": 2, "keywords": ["price", "value", "cost"]}
+    ],
+    "summary": "The product quality is excellent, but the price is high."
+  }
+}
+```
+

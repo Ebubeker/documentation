@@ -1,0 +1,99 @@
+---
+title: Time Series Analysis  
+description: This endpoint allows users to upload a file containing time series data and perform various analyses, including aggregation, trend tests, decomposition, and optional graph generation.  
+---
+
+## Endpoint: `POST /time-series-analysis`
+
+### Request Parameters
+
+#### File Upload
+- `file` (required): The file containing the time series data to be processed. Supported formats include CSV, Excel, etc.
+
+#### Time Column
+- `time_column` (required): The name of the column containing the time-related data (e.g., "date", "timestamp").
+
+#### Resampling Interval
+- `interval` (optional): The frequency at which to resample the data. The options are:
+  - `"hourly"`
+  - `"daily"`
+  - `"weekly"`
+  - `"monthly"`
+  - `"yearly"`  
+  Default is `"daily"`.
+
+#### Aggregation Functions
+- `aggregation_func` (optional): Comma-separated list of aggregation functions to apply to the time series data. Default is `["mean"]`. Available options: `sum`, `mean`, `median`, `min`, `max`, `count`, `std`.
+
+#### Columns to Analyze
+- `columns_to_analyze` (optional): A comma-separated list of columns to analyze. If omitted, all numeric columns will be analyzed.
+
+#### Trend Tests
+- `trend_tests` (optional): Comma-separated list of trend tests to apply. Default is `["adfuller"]`. Available options: `adfuller`, `kpss`.
+
+#### Decomposition
+- `decomposition` (optional): Boolean indicating whether to decompose the time series data into trend, seasonal, and residual components. Default is `false`.
+
+#### Decomposition Model
+- `decomposition_model` (optional): The decomposition model to use. Available options: `additive`, `multiplicative`. Default is `"additive"`.
+
+#### Graphs
+- `include_graphs` (optional): Boolean to specify if graphs should be included in the response. Default is `false`.
+- `graph_types` (optional): Comma-separated list of graph types to include. Default is `["line"]`. Available options: `line`, `decomposition`, `acf`, `pacf`, `rolling_mean`.
+
+### Example Request
+
+```bash
+curl -X POST "http://localhost:8000/time-series-analysis" \
+-F "file=@data.csv" \
+-F "time_column=date" \
+-F "interval=daily" \
+-F "aggregation_func=mean,median" \
+-F "columns_to_analyze=Sales,Profit" \
+-F "trend_tests=adfuller,kpss" \
+-F "decomposition=true" \
+-F "decomposition_model=additive" \
+-F "include_graphs=true" \
+-F "graph_types=line,decomposition"
+```
+
+### Analysis Components
+
+1. **Aggregation**: Aggregates the time series data based on the selected aggregation functions (e.g., mean, sum, median).
+2. **Trend Tests**: Applies statistical tests like Augmented Dickey-Fuller (`adfuller`) and Kwiatkowski-Phillips-Schmidt-Shin (`kpss`) to detect trends in the data.
+3. **Decomposition**: Decomposes the time series data into its trend, seasonal, and residual components.
+4. **Graphs**: Optionally generates graphs such as line charts, decomposition components, autocorrelation function (ACF), partial autocorrelation function (PACF), and rolling mean.
+
+### Example Response
+
+```json
+{
+  "aggregated_data": {
+    "mean": {"Sales": 5000, "Profit": 1200},
+    "median": {"Sales": 5200, "Profit": 1100},
+    "std": {"Sales": 800, "Profit": 200},
+    "min": {"Sales": 1000, "Profit": 100},
+    "max": {"Sales": 9000, "Profit": 2000}
+  },
+  "trend_tests": {
+    "adfuller": {"statistic": -3.5, "pvalue": 0.01, "is_stationary": true},
+    "kpss": {"statistic": 0.5, "pvalue": 0.1, "is_stationary": true}
+  },
+  "decomposition": {
+    "trend": [100, 110, 120, 130],
+    "seasonal": [20, 30, 25, 35],
+    "residual": [5, 10, -5, 0]
+  },
+  "graphs": {
+    "line": {
+      "Sales": {"time": ["2021-01-01", "2021-01-02", "2021-01-03", "2021-01-04"], "values": [5000, 5200, 5100, 5300]},
+      "Profit": {"time": ["2021-01-01", "2021-01-02", "2021-01-03", "2021-01-04"], "values": [1200, 1100, 1150, 1250]}
+    },
+    "decomposition": {
+      "trend": {"time": ["2021-01-01", "2021-01-02", "2021-01-03", "2021-01-04"], "values": [100, 110, 120, 130]},
+      "seasonal": {"time": ["2021-01-01", "2021-01-02", "2021-01-03", "2021-01-04"], "values": [20, 30, 25, 35]},
+      "residual": {"time": ["2021-01-01", "2021-01-02", "2021-01-03", "2021-01-04"], "values": [5, 10, -5, 0]}
+    }
+  }
+}
+```
