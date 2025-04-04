@@ -2,6 +2,7 @@ import type { BaseLayoutProps } from 'fumadocs-ui/layouts/shared';
 import Image from 'next/image';
 import LogoDark from '@/lib/assets/logo-white.png';
 import LogoWhite from '@/lib/assets/logo.png';
+import Link from 'next/link';
 
 export const baseOptions: BaseLayoutProps = {
   nav: {
@@ -11,6 +12,7 @@ export const baseOptions: BaseLayoutProps = {
         <Image src={LogoWhite} alt='Light mode logo.' className="dark:hidden" width={100}/>                                
       </>
     ),
+    url: "https://subdivide.co",
   },
   links: [
     {
